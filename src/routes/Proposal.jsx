@@ -1,4 +1,6 @@
 import React from 'react';
+import { useMemo } from 'react';
+import { useTable } from 'react-table';
 import { 
     Form, 
     redirect, 
@@ -18,12 +20,13 @@ export async function loader() {
       let trimmed_p = {
         supplyChange: p.supplyChange,
         voteCount: p.voteCount,
-        done: p.done,
-        increase: p.increase,
+        done: p.done ? "true" : "false",
+        increase: p.increase ? "true" : "false",
         blockNum: p.blockNum,
       }
       proposals.push(trimmed_p);
     }
+    console.log(proposals);
     return proposals;
 }
 
@@ -49,6 +52,35 @@ export async function action({ request }) {
 
 export default function Proposal() {
     const proposals = useLoaderData();
+    const data = useMemo(() => proposals, []);
+    const columns = useMemo(() => [
+            {
+                Header: 'Direction',
+                accessor: 'increase'
+            },
+            {
+                Header: 'Done',
+                accessor: 'done'
+            },
+            {
+                Header: 'Supply Change',
+                accessor: 'supplyChange'
+            },
+            {
+                Header: 'Vote Count',
+                accessor: 'voteCount'
+            },
+        ],
+        []
+    );
+
+    const {
+        getTableProps,
+        getTableBodyProps,
+        headerGroups,
+        rows,
+        prepareRow,
+    } = useTable({ columns, data });
 
     return (
         <div>
@@ -61,6 +93,35 @@ export default function Proposal() {
                 </select>
                 <input type="submit" value="Create Proposal" />
             </Form>
+            <table {...getTableProps()}>
+                <thead>
+                    {headerGroups.map(headerGroup => (
+                        <tr {...headerGroup.getHeaderGroupProps()}>
+                            {headerGroup.headers.map(column => (
+                                <th {...column.getHeaderProps()}>
+                                    {column.render('Header')}
+                                </th>
+                            ))}
+                        </tr>
+                    ))}
+                </thead>
+                <tbody {...getTableBodyProps()}>
+                    {rows.map(row => {
+                        prepareRow(row)
+                        return (
+                            <tr {...row.getRowProps()}>
+                                {row.cells.map(cell => {
+                                    return (
+                                        <td {...cell.getCellProps()}>
+                                            {cell.render('Cell')}
+                                        </td>
+                                    )
+                                })}
+                            </tr>
+                        )
+                    })}
+                </tbody>
+            </table>
         </div>
     );
 }
