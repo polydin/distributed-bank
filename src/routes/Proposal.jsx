@@ -34,7 +34,6 @@ export async function loader() {
     let proposals = [];
     for (let i=0; i<numProposals; i++) {
       let p = await dbank.methods.proposals(i).call();
-      console.log(p);
       let trimmed_p = {
         id: i,
         totalVoteCount: p.totalVoteCount,
