@@ -1,0 +1,5 @@
+.sidebar {
+    display: grid;
+    font-size: 28px;
+    grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+}
