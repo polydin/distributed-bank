@@ -10,12 +10,20 @@ import Web3 from 'web3';
 import artifact from '../DistributedBank.json';
 import { postTxToAccount } from '../utils';
 
+const web3 = new Web3(window.ethereum);
+const dbank = new web3.eth.Contract(artifact.abi, import.meta.env.VITE_CONTRACT_ADDRESS);
+
 async function vote(proposalId) {
-    const web3 = new Web3(window.ethereum);
-    const dbank = new web3.eth.Contract(artifact.abi, import.meta.env.VITE_CONTRACT_ADDRESS);
     await dbank.methods.vote(proposalId).send({
         from: localStorage.getItem('address'),
         gas: 200000
+    })
+}
+
+async function endProposal(proposalId) {
+    await dbank.methods.endProposal(proposalId).send({
+        from: localStorage.getItem('address'),
+        gas: 200000,
     })
 }
 
@@ -26,8 +34,10 @@ export async function loader() {
     let proposals = [];
     for (let i=0; i<numProposals; i++) {
       let p = await dbank.methods.proposals(i).call();
+      console.log(p);
       let trimmed_p = {
         id: i,
+        totalVoteCount: p.totalVoteCount,
         supplyChange: p.supplyChange,
         voteCount: p.voteCount,
         done: p.done ? "true" : "false",
@@ -84,11 +94,22 @@ export default function Proposal() {
                 accessor: 'voteCount'
             },
             {
+                Header: 'Total Vote Count',
+                accessor: 'totalVoteCount'
+            },
+            {
                 Header: 'Vote',
                 Cell: ({cell}) => (
                     <button onClick={() => vote(cell.row.values.id)}>Vote</button>
                 )
             },
+            {
+                Header: 'End',
+                Cell: ({cell}) => (
+                    <button onClick={() => endProposal(cell.row.values.id)}>End Proposal</button>
+                )
+
+            }
         ],
         []
     );
