@@ -89,15 +89,6 @@ contract DistributedBank {
     mapping(address => Vote) numVotes;
   }
 
-  struct ProposalDAO {
-    uint id;
-    uint supplyChange;
-    uint voteCount;
-    bool done;
-    bool increase;
-    uint blockNum;
-  }
-
   mapping(uint => Proposal) public proposals; 
   uint public proposalsLength;
 
@@ -153,32 +144,33 @@ contract DistributedBank {
     proposal.numVotes[msg.sender].voted = true;
   }
 
-  function endProposal(uint proposalNum) public returns (bool ok) {
+  // TODO - use numVotes instead of supplyChange to change owner accounts
+  function endProposal(uint proposalNum) public returns (bool) {
     assert(proposals[proposalNum].done == false);
     assert((block.number - proposals[proposalNum].blockNum) > 5);
     Proposal storage proposal = proposals[proposalNum];
-    // TODO: Change this to apply totalSupply at proposal creation and use
-    //       instead
     uint supplyChange = proposal.supplyChange;
     uint totalVoteCount = proposal.totalVoteCount;
     if (proposal.voteCount >= (totalVoteCount * 9) / 10) {
-      if ( (totalVoteCount > 100) && !proposal.increase) {
+      if ( (supplyChange > 100) && !proposal.increase) {
         totalSupply = 0;
-	      return true;
+        proposal.done = true; 
+        return true;
+        // TODO - zero out all owners values
       }
 
       uint sum = 0;
       if (proposal.increase) {
         for (uint i=0; i<getOwnerCount(); i++) {
           uint oldValue = owners[ownersList[i]].value;
-          owners[ownersList[i]].value = oldValue + (oldValue * totalVoteCount / 100);
+          owners[ownersList[i]].value = oldValue + (proposal.numVotes[ownersList[i]].voteCount * supplyChange / 100);
           sum += owners[ownersList[i]].value;
         }
         totalSupply = sum;
       } else if (!proposal.increase) {
         for (uint i=0; i<getOwnerCount(); i++) {
           uint oldValue = owners[ownersList[i]].value;
-          owners[ownersList[i]].value = oldValue - (oldValue * totalVoteCount / 100);
+          owners[ownersList[i]].value = oldValue - (proposal.numVotes[ownersList[i]].voteCount * supplyChange / 100);
           sum += owners[ownersList[i]].value;
         }
         totalSupply = sum;
@@ -186,7 +178,7 @@ contract DistributedBank {
       proposal.done = true;
       return true;
     }
-    proposal.done = true;
     return true;
   }
+
 }

@@ -11,11 +11,14 @@ dbank.methods.exchange().send({ from: accounts[0], gas: 200000, value: web3.util
   return dbank.methods.proposeSupplyChange(10, true).send({ from: accounts[0], gas: 500000 })
 })
 
-async function getProposals() {
-  let numProposals = await dbank.methods.proposalsLength().call()
+async function getProposals(address) {
+  let artifact = utils.compileContract('DistributedBank.sol', 'DistributedBank')
+  let deployedContract = new web3.eth.Contract(artifact.abi, address)
+
+  let numProposals = await deployedContract.methods.proposalsLength().call()
   let proposals = []
   for (let i=0; i<numProposals; i++) {
-    let p = await dbank.methods.proposals(i).call()
+    let p = await deployedContract.methods.proposals(i).call()
     let trimmed_p = {
       totalVoteCount: p.totalVoteCount,
       supplyChange: p.supplyChange,

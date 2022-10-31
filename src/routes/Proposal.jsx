@@ -58,8 +58,8 @@ export async function action({ request }) {
     if (!isNaN(delta) && delta > 0) {
         let unconfirmedTx = await deployedContract.methods.proposeSupplyChange(delta, direction).send({
             from: from,
-            gas: 150000
-        });
+            gas: 500000
+        })
         let body = {
             hash: unconfirmedTx.transactionHash,
         }
