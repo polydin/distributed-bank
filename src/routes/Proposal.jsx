@@ -34,14 +34,16 @@ export async function loader() {
     let proposals = [];
     for (let i=0; i<numProposals; i++) {
       let p = await dbank.methods.proposals(i).call();
+      let voteCount = await dbank.methods.getVote(i, localStorage.getItem('address')).call();
       let trimmed_p = {
         id: i,
         totalVoteCount: p.totalVoteCount,
         supplyChange: p.supplyChange,
         voteCount: p.voteCount,
-        done: p.done ? "true" : "false",
-        increase: p.increase ? "true" : "false",
+        done: p.done ? "Yes" : "No",
+        increase: p.increase ? "Increase" : "Decrease",
         blockNum: p.blockNum,
+        voted: voteCount.voted,
       }
       proposals.push(trimmed_p);
     }
@@ -49,14 +51,12 @@ export async function loader() {
 }
 
 export async function action({ request }) {
-    const web3 = new Web3(window.ethereum);
     const formData = await request.formData();
-    const deployedContract = new web3.eth.Contract(artifact.abi, import.meta.env.VITE_CONTRACT_ADDRESS);
     const from = localStorage.getItem('address');
     const direction = formData.get('direction') === 'increase' ? true : false;
     const delta = parseInt(formData.get('delta'));
     if (!isNaN(delta) && delta > 0) {
-        let unconfirmedTx = await deployedContract.methods.proposeSupplyChange(delta, direction).send({
+        let unconfirmedTx = await dbank.methods.proposeSupplyChange(delta, direction).send({
             from: from,
             gas: 500000
         })
@@ -77,7 +77,7 @@ export default function Proposal() {
                 accessor: 'id'
             },
             {
-                Header: 'Direction',
+                Header: 'Change',
                 accessor: 'increase'
             },
             {
@@ -99,13 +99,25 @@ export default function Proposal() {
             {
                 Header: 'Vote',
                 Cell: ({cell}) => (
-                    <button onClick={() => vote(cell.row.values.id)}>Vote</button>
+                    <button 
+                        hidden={
+                            data[cell.row.values.id].voted
+                        } 
+                        onClick={() => vote(cell.row.values.id)}
+                    >
+                        Vote
+                    </button>
                 )
             },
             {
                 Header: 'End',
                 Cell: ({cell}) => (
-                    <button onClick={() => endProposal(cell.row.values.id)}>End Proposal</button>
+                    <button 
+                        onClick={() => endProposal(cell.row.values.id)}
+                        hidden={cell.row.values.done === 'Yes' ? true : false}
+                    >
+                        End Proposal
+                    </button>
                 )
 
             }
@@ -132,6 +144,8 @@ export default function Proposal() {
                 </select>
                 <input type="submit" value="Create Proposal" />
             </Form>
+            <br />
+            <br />
             <table {...getTableProps()}>
                 <thead>
                     {headerGroups.map(headerGroup => (
