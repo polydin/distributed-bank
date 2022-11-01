@@ -28,7 +28,6 @@ async function endProposal(proposalId) {
 }
 
 export async function loader() {
-    const web3 = new Web3(window.ethereum);
     const dbank = new web3.eth.Contract(artifact.abi, import.meta.env.VITE_CONTRACT_ADDRESS);
     let numProposals = await dbank.methods.proposalsLength().call();
     let proposals = [];
@@ -47,7 +46,7 @@ export async function loader() {
       }
       proposals.push(trimmed_p);
     }
-    return proposals;
+    return proposals.reverse();
 }
 
 export async function action({ request }) {
@@ -100,9 +99,7 @@ export default function Proposal() {
                 Header: 'Vote',
                 Cell: ({cell}) => (
                     <button 
-                        hidden={
-                            data[cell.row.values.id].voted
-                        } 
+                        hidden={data.find(p => p.id === cell.row.values.id).voted || cell.row.values.done === 'Yes' ? true : false} 
                         onClick={() => vote(cell.row.values.id)}
                     >
                         Vote

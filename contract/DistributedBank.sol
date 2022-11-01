@@ -178,6 +178,7 @@ contract DistributedBank {
       proposal.done = true;
       return true;
     }
+    proposal.done = true;
     return true;
   }
 
