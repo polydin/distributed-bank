@@ -19,7 +19,23 @@ export async function loader() {
     for (const tx of transactions) {
         const inter = new ethers.utils.Interface(artifact.abi);
         let transformedTx = inter.parseTransaction({ data: tx.input, value: tx.value });
-        tx.name = transformedTx.functionFragment.name;
+        console.log(transformedTx);
+        switch(transformedTx.functionFragment.name) {
+            case 'exchange':
+                tx.name = 'Exchange';
+                tx.to = import.meta.env.VITE_CONTRACT_ADDRESS;
+                break;
+            case 'proposeSupplyChange':
+                tx.name = 'Supply Change';
+                tx.to = import.meta.env.VITE_CONTRACT_ADDRESS;
+                break;
+            case 'transfer':
+                tx.name = 'Transfer';
+                tx.to = transformedTx.args[1];
+                break;
+            default:
+                tx.name = 'Unknown';
+        }
         tx.args = transformedTx.args;
     }
     return transactions;
@@ -32,6 +48,10 @@ export default function TransactionList() {
             {
                 Header: 'Type',
                 accessor: 'name',
+            },
+            {
+                Header: 'To',
+                accessor: 'to',
             },
             {
                 Header: 'Value',
