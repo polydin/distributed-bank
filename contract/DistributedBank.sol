@@ -6,6 +6,7 @@ contract DistributedBank {
 
   constructor() {
     proposalsLength = 0;
+    rateProposalsLength = 0;
     // TODO: this is hardcoded for now but needs to be changed so that it varies according
     // to a market clearing mechanism
     exchangeRate = 757575757575757;
@@ -17,6 +18,18 @@ contract DistributedBank {
   uint public totalSupply;
   uint public exchangeRate;
 
+  RateProposal[] public rateProposals;
+  uint public rateProposalsLength;
+
+  struct RateProposal {
+    uint newRate;
+    uint totalVoteCount;
+    uint voteCount;
+    bool done;
+    uint blockNum;
+    mapping(address => Vote) numVotes;
+  }
+
   function exchange() public payable {
     uint nTokens = msg.value / exchangeRate; 
     if (owners[msg.sender].isOwner) {
@@ -25,6 +38,37 @@ contract DistributedBank {
       newOwner(msg.sender, nTokens);
     }
     totalSupply += nTokens;
+  }
+
+  function proposeRateChange(uint newRate) public {
+    uint proposalId = rateProposalsLength++;
+    RateProposal storage proposal = rateProposals[proposalId];
+    proposal.newRate = newRate;
+    proposal.voteCount = 0;
+    proposal.done = false;
+    proposal.blockNum = block.number;
+    proposal.totalVoteCount = totalSupply;
+    for (uint i=0; i<ownersList.length; i++) {
+      proposal.numVotes[ownersList[i]] = Vote({ voteCount: owners[ownersList[i]].value, voted: false });
+    } 
+  }
+
+  function rateVote(uint id) public {
+    RateProposal storage proposal = rateProposals[id];
+    assert(proposal.done == false);
+    assert(proposal.numVotes[msg.sender].voted == false);
+    proposal.voteCount += proposal.numVotes[msg.sender].voteCount; 
+    proposal.numVotes[msg.sender].voted = true;
+  }
+
+  function endRateProposal(uint id) public {
+    RateProposal storage rp = rateProposals[id];
+    assert(rp.done == false);
+    assert(rp.blockNum - block.number > 2);
+    if (rp.voteCount > (rp.totalVoteCount * 9 / 10)) {
+      exchangeRate = rp.newRate;
+      rp.done = true;
+    }
   }
 
   function balanceOf(address owner) public view returns (uint balance) {

@@ -2,4 +2,6 @@
     display: grid;
     font-size: 28px;
     grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+    grid-gap: 20px;
+    font-family: Arial, sans-serif;
 }

@@ -42,7 +42,7 @@ async function deployContract(contractFile, contractName) {
   let artifact = compileContract(contractFile, contractName);
 
   let myContract = new web3.eth.Contract(artifact.abi);
-  let deployedContract = await myContract.deploy({ data: artifact.bytecode }).send({ from: accounts[0], gas: 3000000 });
+  let deployedContract = await myContract.deploy({ data: artifact.bytecode }).send({ from: accounts[0], gas: 4000000 });
 
   return deployedContract;
 }
