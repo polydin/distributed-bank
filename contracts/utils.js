@@ -33,7 +33,7 @@ function compileContract(contractFile, contractName) {
 
 function writeArtifact(contractFile, contractName) {
   let artifact = compileContract(contractFile, contractName);
-  fs.writeFileSync('DistributedBank.json', JSON.stringify(artifact));
+  fs.writeFileSync('../src/DistributedBank.json', JSON.stringify(artifact));
 }
 
 async function deployContract(contractFile, contractName) {

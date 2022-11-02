@@ -56,6 +56,11 @@ contract DistributedBank {
     } 
   }
 
+  function getRateVote(uint proposalNum, address owner) view public returns(Vote memory) {
+    RateProposal storage p = rateProposals[proposalNum];
+    return p.numVotes[owner];
+  }
+
   function rateVote(uint id) public {
     RateProposal storage proposal = rateProposals[id];
     assert(proposal.done == false);
