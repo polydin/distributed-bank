@@ -15,6 +15,7 @@ import Login, {
   action as loginAction 
 } from './routes/Login';
 import Exchange, {
+  loader as exchangeLoader,
   action as exchangeAction,
 } from './routes/Exchange';
 import Transfer, {
@@ -48,6 +49,7 @@ const router = createBrowserRouter([
         path: '/exchange',
         element: <Exchange />,
         action: exchangeAction,
+        loader: exchangeLoader,
       },
       {
         path: '/transfer',
