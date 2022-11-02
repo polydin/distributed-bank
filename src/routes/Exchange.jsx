@@ -25,7 +25,7 @@ export async function loader() {
       let trimmed_p = {
         id: i,
         totalVoteCount: p.totalVoteCount,
-        newRate: p.newRate,
+        newRate: web3.utils.fromWei(p.newRate, 'ether'),
         voteCount: p.voteCount,
         done: p.done ? "Yes" : "No",
         blockNum: p.blockNum,
@@ -57,6 +57,20 @@ export async function action({ request }) {
     return redirect('/');
 }
 
+async function rateVote(id) {
+    await dbank.methods.rateVote(id).send({
+        from: localStorage.getItem('address'),
+        gas: 200000
+    });
+}
+
+async function endRateProposal(id) {
+    await dbank.methods.endRateProposal(id).send({
+        from: localStorage.getItem('address'),
+        gas: 200000
+    })
+}
+
 export default function Exchange() {
     const loaderData = useLoaderData();
     const data = useMemo(() => loaderData.rateProposals, []);
@@ -70,7 +84,7 @@ export default function Exchange() {
                 accessor: 'done'
             },
             {
-                Header: 'New Rate',
+                Header: 'New Rate (ETHUSD)',
                 accessor: 'newRate'
             },
             {
@@ -86,7 +100,7 @@ export default function Exchange() {
                 Cell: ({cell}) => (
                     <button 
                         hidden={data.find(p => p.id === cell.row.values.id).voted || cell.row.values.done === 'Yes' ? true : false} 
-                        onClick={() => vote(cell.row.values.id)}
+                        onClick={() => rateVote(cell.row.values.id)}
                     >
                         Vote
                     </button>
@@ -96,7 +110,7 @@ export default function Exchange() {
                 Header: 'End',
                 Cell: ({cell}) => (
                     <button 
-                        onClick={() => endProposal(cell.row.values.id)}
+                        onClick={() => endRateProposal(cell.row.values.id)}
                         hidden={cell.row.values.done === 'Yes' ? true : false}
                     >
                         End Proposal
@@ -126,7 +140,7 @@ export default function Exchange() {
                 <input type="text" placeholder="amount" name="amount" />
                 <input type="submit" value="Exchange" />
             </Form>
-            <Form method="post">
+            <Form method="post" action="">
                 <input type="text" placeholder="New Rate" name="newRate" />
                 <input type="submit" value="Propose New Rate" />
             </Form>
