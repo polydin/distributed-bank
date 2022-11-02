@@ -31,3 +31,23 @@ async function getProposals(address) {
   }
   return proposals
 }
+
+async function getRateProposals(address) {
+  let artifact = utils.compileContract('DistributedBank.sol', 'DistributedBank')
+  let deployedContract = new web3.eth.Contract(artifact.abi, address)
+
+  let numProposals = await deployedContract.methods.rateProposalsLength().call()
+  let proposals = []
+  for (let i=0; i<numProposals; i++) {
+    let p = await deployedContract.methods.rateProposals(i).call()
+    let trimmed_p = {
+      totalVoteCount: p.totalVoteCount,
+      newRate: p.newRate,
+      voteCount: p.voteCount,
+      done: p.done, 
+      blockNum: p.blockNum,
+    }
+    proposals.push(trimmed_p)
+  }
+  return proposals
+}

@@ -21,7 +21,7 @@ contract DistributedBank {
   uint public totalSupply;
   uint public exchangeRate;
 
-  RateProposal[] public rateProposals;
+  mapping(uint => RateProposal) public rateProposals; 
   uint public rateProposalsLength;
 
   struct RateProposal {
@@ -67,11 +67,12 @@ contract DistributedBank {
   function endRateProposal(uint id) public {
     RateProposal storage rp = rateProposals[id];
     assert(rp.done == false);
-    assert(rp.blockNum - block.number > 2);
+    assert(block.number - rp.blockNum > 2);
     if (rp.voteCount > (rp.totalVoteCount * 9 / 10)) {
       exchangeRate = rp.newRate;
       rp.done = true;
     }
+    rp.done = true;
   }
 
   function balanceOf(address owner) public view returns (uint balance) {
