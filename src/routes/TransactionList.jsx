@@ -6,6 +6,7 @@ import Web3 from 'web3';
 import { ethers } from 'ethers';
 import artifact from '../DistributedBank.json';
 import { useTable } from 'react-table';
+import '../css/TransactionList.css';
 
 export async function loader() {
     const web3 = new Web3(window.ethereum);
@@ -19,7 +20,6 @@ export async function loader() {
     for (const tx of transactions) {
         const inter = new ethers.utils.Interface(artifact.abi);
         let transformedTx = inter.parseTransaction({ data: tx.input, value: tx.value });
-        console.log(transformedTx);
         switch(transformedTx.functionFragment.name) {
             case 'exchange':
                 tx.name = 'Exchange';
@@ -36,7 +36,7 @@ export async function loader() {
             default:
                 tx.name = 'Unknown';
         }
-        tx.args = transformedTx.args;
+        tx.value = web3.utils.fromWei(tx.value, 'ether') + ' ETH';
     }
     return transactions;
 }
@@ -61,10 +61,6 @@ export default function TransactionList() {
                 Header: 'Block Number',
                 accessor: 'blockNumber',
             },
-            {
-                Header: 'Hash',
-                accessor: 'hash',
-            },
         ],
         []
     );
@@ -85,7 +81,7 @@ export default function TransactionList() {
                     {headerGroups.map(headerGroup => (
                         <tr {...headerGroup.getHeaderGroupProps()}>
                             {headerGroup.headers.map(column => (
-                                <th {...column.getHeaderProps()}>
+                                <th align="center" {...column.getHeaderProps()}>
                                     {column.render('Header')}
                                 </th>
                             ))}
@@ -99,7 +95,7 @@ export default function TransactionList() {
                             <tr {...row.getRowProps()}>
                                 {row.cells.map(cell => {
                                     return (
-                                        <td {...cell.getCellProps()}>
+                                        <td align="center" className="tableData" {...cell.getCellProps()}>
                                             {cell.render('Cell')}
                                         </td>
                                     )

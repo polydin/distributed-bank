@@ -2,6 +2,9 @@
 pragma solidity ^0.8.17;
 pragma experimental ABIEncoderV2;
 
+// TODO - what happens to the ETH that is sent to the contract in exchange() ?
+//        spread it out amongst the owners?  keep a treasury?
+
 contract DistributedBank {
 
   constructor() {
