@@ -47,7 +47,6 @@ app.post('/api/users/:address/txs', (req, res) => {
             }
         }
     ).then(result => res.json(result));
-    console.log('Tx added to database');
 });
 
 app.get('/api/users/:address/txs', (req, res) => {

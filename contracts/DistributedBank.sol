@@ -12,7 +12,7 @@ contract DistributedBank {
     rateProposalsLength = 0;
     // TODO: this is hardcoded for now but needs to be changed so that it varies according
     // to a market clearing mechanism
-    exchangeRate = 757575757575757;
+    exchangeRate = 757575757575757; // this number was chosen to reflect parity with the dollar at contract inititation
   }
 
   /***

@@ -32,6 +32,7 @@ export async function loader() {
             case 'transfer':
                 tx.name = 'Transfer';
                 tx.to = transformedTx.args[1];
+                tx.transferValue = transformedTx.args[2].toString(10);
                 break;
             default:
                 tx.name = 'Unknown';
@@ -56,6 +57,10 @@ export default function TransactionList() {
             {
                 Header: 'Value',
                 accessor: 'value',
+            },
+            {
+                Header: 'Value Transferred',
+                accessor: 'transferValue'
             },
             {
                 Header: 'Block Number',
