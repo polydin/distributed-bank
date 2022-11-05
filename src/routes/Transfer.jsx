@@ -1,5 +1,8 @@
 import React from 'react';
-import { Form, redirect } from 'react-router-dom';
+import { 
+    Form, 
+    redirect, 
+} from 'react-router-dom';
 import Web3 from 'web3';
 import artifact from '../DistributedBank.json';
 import { postTxToAccount } from '../utils';
