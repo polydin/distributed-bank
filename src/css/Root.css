@@ -3,6 +3,11 @@
     grid-template-columns: 1fr 7fr;
 }
 
+.header {
+    grid-column: 3 / -1;
+    align-content: center;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
                 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',

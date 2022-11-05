@@ -1,5 +1,4 @@
-import React from 'react';
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useTable } from 'react-table';
 import { 
     Form, 
@@ -14,16 +13,24 @@ const web3 = new Web3(window.ethereum);
 const dbank = new web3.eth.Contract(artifact.abi, import.meta.env.VITE_CONTRACT_ADDRESS);
 
 async function vote(proposalId) {
+    let from = localStorage.getItem('address');
+    let gasEstimate = await dbank.methods.vote(proposalId).estimateGas({
+        from: from,
+    }) 
     await dbank.methods.vote(proposalId).send({
-        from: localStorage.getItem('address'),
-        gas: 200000
-    })
+        from: from,
+        gas: Math.floor(gasEstimate * 1.1)
+    });
 }
 
 async function endProposal(proposalId) {
+    let from = localStoarge.getItem('address');
+    let gasEstimate = dbank.methods.endProposal(proposalId).estimateGas({
+        from: from,
+    });
     await dbank.methods.endProposal(proposalId).send({
-        from: localStorage.getItem('address'),
-        gas: 200000,
+        from: from,
+        gas: Math.floor(gasEstimate * 1.1),
     })
 }
 
@@ -55,9 +62,12 @@ export async function action({ request }) {
     const direction = formData.get('direction') === 'increase' ? true : false;
     const delta = parseInt(formData.get('delta'));
     if (!isNaN(delta) && delta > 0) {
+        let gasEstimate = await dbank.methods.proposeSupplyChange(delta, direction).estimateGas({
+            from: from,
+        });
         let unconfirmedTx = await dbank.methods.proposeSupplyChange(delta, direction).send({
             from: from,
-            gas: 500000
+            gas: Math.floor(gasEstimate * 1.1),
         })
         let body = {
             hash: unconfirmedTx.transactionHash,

@@ -44,9 +44,14 @@ export async function action({ request }) {
     const from = localStorage.getItem('address')
     const formData = await request.formData();
     let value = web3.utils.toWei(formData.get('amount'), 'ether');
+    let gasEstimate = await dbank.methods.exchange().estimateGas({
+        from: from,
+        value: value,
+    });
+    let upperGasLimit = Math.floor(gasEstimate * 1.1);
     let unconfirmedTx = await dbank.methods.exchange().send({
         from: from,
-        gas: 150000,
+        gas: upperGasLimit,
         value: value,
     });
     let body = {
@@ -58,9 +63,13 @@ export async function action({ request }) {
 }
 
 async function rateVote(id) {
+    let gasEstimate = await dbank.methods.rateVote(id).estimateGas({
+        from: localStorage.getItem('address'),
+    });
+    let upperGasLimit = Math.floor(gasEstimate * 1.1);
     await dbank.methods.rateVote(id).send({
         from: localStorage.getItem('address'),
-        gas: 200000
+        gas: upperGasLimit,
     });
 }
 

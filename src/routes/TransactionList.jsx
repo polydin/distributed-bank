@@ -55,7 +55,7 @@ export default function TransactionList() {
                 accessor: 'to',
             },
             {
-                Header: 'Value',
+                Header: 'ETH Value',
                 accessor: 'value',
             },
             {
