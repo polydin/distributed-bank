@@ -10,10 +10,8 @@ export async function loader() {
     let accounts = await window.ethereum.request({ 
         method: 'eth_requestAccounts'
     });
-    if (accounts.length === 0) { return redirect('/login')}
-    const balance = await deployedContract.methods.balanceOf(
-        window.ethereum.selectedAddress
-    ).call();
+    if (accounts.length === 0) { return redirect('/login') }
+    const balance = await deployedContract.methods.balanceOf(window.ethereum.selectedAddress).call();
     return balance;
 }
 

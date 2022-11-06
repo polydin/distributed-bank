@@ -42,21 +42,22 @@ export async function loader() {
 export async function action({ request }) {
     const from = window.ethereum.selectedAddress;
     const formData = await request.formData();
-    let value = web3.utils.toWei(formData.get('amount'), 'ether');
-    let gasEstimate = await dbank.methods.exchange().estimateGas({
-        from: from,
-        value: value,
-    });
-    let upperGasLimit = Math.floor(gasEstimate * 1.1);
-    let unconfirmedTx = await dbank.methods.exchange().send({
-        from: from,
-        gas: upperGasLimit,
-        value: value,
-    });
-    let body = {
-        hash: unconfirmedTx.transactionHash,
+    const value = formData.get('amount')
+    if (!isNaN(parseInt(value))) {
+        let gasEstimate = await dbank.methods.exchange().estimateGas({
+            from: from,
+            value: web3.utils.toWei(value, 'ether'),
+        })
+        let unconfirmedTx = await dbank.methods.exchange().send({
+            from: from,
+            gas: Math.floor(gasEstimate * 1.1),
+            value: web3.utils.toWei(value, 'ether'),
+        })
+        let body = {
+            hash: unconfirmedTx.transactionHash,
+        }
+        postTxToAccount(from, JSON.stringify(body));
     }
-    postTxToAccount(from, JSON.stringify(body));
 
     return redirect('/');
 }
@@ -162,9 +163,7 @@ export default function Exchange() {
         <div className="exchange">
             <h1>Exchange</h1>
             <p>The current exchangeRate is {loaderData.exchangeRate} ETHUSD</p>
-            <Form
-                method="post"
-            >
+            <Form method="post">
                 <input type="text" placeholder="amount" name="amount" />
                 <input type="submit" value="Exchange" />
             </Form>
