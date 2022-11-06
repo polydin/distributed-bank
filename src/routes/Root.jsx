@@ -22,8 +22,10 @@ export default function Root() {
     return (
         <div className="root">
             <div className="header"><Header /></div>
-            <div><Sidebar /></div>
-            <div><Outlet /></div>
+            <div className="main">
+                <div><Sidebar /></div>
+                <div><Outlet /></div>
+            </div>
         </div>
         
     );

@@ -6,6 +6,7 @@ import {
 import Web3 from 'web3';
 import artifact from '../DistributedBank.json';
 import { postTxToAccount } from '../utils';
+import '../css/Transfer.css';
 
 export async function action({ request }) {
     const web3 = new Web3(window.ethereum)
@@ -31,7 +32,7 @@ export async function action({ request }) {
 
 export default function Transfer() {
     return (
-        <div>
+        <div className="transfer">
             <h1>Transfer</h1>
             <Form method="post">
                 <input type="text" placeholder="amount" name="amount" />

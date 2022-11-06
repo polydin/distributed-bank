@@ -79,7 +79,7 @@ export default function TransactionList() {
     } = useTable({ columns, data });
 
     return (
-        <div>
+        <div className="transactions">
             <h1>Transactions</h1>
             <table {...getTableProps()}>
                 <thead>
