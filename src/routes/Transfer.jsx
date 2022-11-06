@@ -6,7 +6,6 @@ import {
 import Web3 from 'web3';
 import artifact from '../DistributedBank.json';
 import { postTxToAccount } from '../utils';
-import '../css/Transfer.css';
 
 export async function action({ request }) {
     const web3 = new Web3(window.ethereum)

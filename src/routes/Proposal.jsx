@@ -8,7 +8,6 @@ import {
 import Web3 from 'web3';
 import artifact from '../DistributedBank.json';
 import { postTxToAccount } from '../utils';
-import '../css/Proposal.css';
 
 const web3 = new Web3(window.ethereum);
 const dbank = new web3.eth.Contract(artifact.abi, import.meta.env.VITE_CONTRACT_ADDRESS);

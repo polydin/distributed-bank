@@ -23,7 +23,3 @@ th:last-child {
 td:last-child {
     border-right: 0px;
 }
-
-.transactions {
-    padding-left: 50px;
-}

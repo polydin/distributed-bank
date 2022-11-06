@@ -1,9 +1,0 @@
-.sidebar {
-    display: grid;
-    grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
-    grid-gap: 10px;
-    font-size: 18px;
-    padding-left: 20px;
-    padding-top: 20px;
-    border-right: 1px solid;
-}
