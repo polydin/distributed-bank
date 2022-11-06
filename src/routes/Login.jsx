@@ -10,7 +10,6 @@ export async function action() {
             method: 'eth_requestAccounts'
         });
         if (accounts.length > 0) {
-            localStorage.setItem('address', accounts[0]);
             return redirect('/');
         } else {
             console.log("Could not login");

@@ -8,26 +8,27 @@ import {
 import Web3 from 'web3';
 import artifact from '../DistributedBank.json';
 import { postTxToAccount } from '../utils';
+import '../css/Proposal.css';
 
 const web3 = new Web3(window.ethereum);
 const dbank = new web3.eth.Contract(artifact.abi, import.meta.env.VITE_CONTRACT_ADDRESS);
 
 async function vote(proposalId) {
-    let from = localStorage.getItem('address');
+    let from = window.ethereum.selectedAddress
     let gasEstimate = await dbank.methods.vote(proposalId).estimateGas({
         from: from,
     }) 
     await dbank.methods.vote(proposalId).send({
         from: from,
         gas: Math.floor(gasEstimate * 1.1)
-    });
+    })
 }
 
 async function endProposal(proposalId) {
-    let from = localStoarge.getItem('address');
+    let from = window.ethereum.selectedAddress
     let gasEstimate = dbank.methods.endProposal(proposalId).estimateGas({
         from: from,
-    });
+    })
     await dbank.methods.endProposal(proposalId).send({
         from: from,
         gas: Math.floor(gasEstimate * 1.1),
@@ -40,7 +41,7 @@ export async function loader() {
     let proposals = [];
     for (let i=0; i<numProposals; i++) {
       let p = await dbank.methods.proposals(i).call();
-      let voteCount = await dbank.methods.getVote(i, localStorage.getItem('address')).call();
+      let voteCount = await dbank.methods.getVote(i, window.ethereum.selectedAddress).call();
       let trimmed_p = {
         id: i,
         totalVoteCount: p.totalVoteCount,
@@ -58,7 +59,7 @@ export async function loader() {
 
 export async function action({ request }) {
     const formData = await request.formData();
-    const from = localStorage.getItem('address');
+    const from = window.ethereum.selectedAddress;
     const direction = formData.get('direction') === 'increase' ? true : false;
     const delta = parseInt(formData.get('delta'));
     if (!isNaN(delta) && delta > 0) {
@@ -141,7 +142,7 @@ export default function Proposal() {
     } = useTable({ columns, data });
 
     return (
-        <div>
+        <div className="proposal">
             <h1>Propose Monetary Policy Change</h1>
             <Form method="post">
                 <input type="text" placeholder="Percent Change" name="delta" />

@@ -1,7 +1,7 @@
 import React from 'react';
 import { 
     Outlet, 
-    redirect 
+    redirect,
 } from "react-router-dom";
 import Sidebar from './Sidebar';
 import Header from './Header'
@@ -9,7 +9,10 @@ import '../css/Root.css';
 
 export async function loader() {
     if (window.ethereum) {
-        if (!localStorage.getItem('address')) {
+        let accounts = await window.ethereum.request({ 
+            method: 'eth_requestAccounts'
+        })
+        if (window.ethereum.selectedAddress === null) {
             console.log("No address assigned");
             return redirect('/login'); 
         } 

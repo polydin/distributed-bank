@@ -10,7 +10,7 @@ import {
 import Web3 from 'web3';
 import artifact from '../DistributedBank.json';
 import { postTxToAccount } from '../utils';
-import '../css/TransactionList.css';
+import '../css/Exchange.css';
     
 const web3 = new Web3(window.ethereum);
 const dbank = new web3.eth.Contract(artifact.abi, import.meta.env.VITE_CONTRACT_ADDRESS);
@@ -21,7 +21,7 @@ export async function loader() {
     let rateProposals = [];
     for (let i=0; i<numProposals; i++) {
       let p = await dbank.methods.rateProposals(i).call();
-      let voteCount = await dbank.methods.getRateVote(i, localStorage.getItem('address')).call();
+      let voteCount = await dbank.methods.getRateVote(i, window.ethereum.selectedAddress).call();
       let trimmed_p = {
         id: i,
         totalVoteCount: p.totalVoteCount,
@@ -41,7 +41,7 @@ export async function loader() {
 }
 
 export async function action({ request }) {
-    const from = localStorage.getItem('address')
+    const from = window.ethereum.selectedAddress;
     const formData = await request.formData();
     let value = web3.utils.toWei(formData.get('amount'), 'ether');
     let gasEstimate = await dbank.methods.exchange().estimateGas({
@@ -63,20 +63,25 @@ export async function action({ request }) {
 }
 
 async function rateVote(id) {
+    let from = window.ethereum.selectedAddress;
     let gasEstimate = await dbank.methods.rateVote(id).estimateGas({
-        from: localStorage.getItem('address'),
+        from: from,
     });
     let upperGasLimit = Math.floor(gasEstimate * 1.1);
     await dbank.methods.rateVote(id).send({
-        from: localStorage.getItem('address'),
+        from: from,
         gas: upperGasLimit,
     });
 }
 
 async function endRateProposal(id) {
+    let from = window.ethereum.selectedAddress
+    let gasEstimate = await dbank.methods.endRateProposal(id).estimateGas({
+        from: from,
+    })
     await dbank.methods.endRateProposal(id).send({
-        from: localStorage.getItem('address'),
-        gas: 200000
+        from: from,
+        gas: Math.floor(gasEstimate * 1.1)
     })
 }
 
@@ -140,7 +145,7 @@ export default function Exchange() {
     } = useTable({ columns, data });
 
     return (
-        <div>
+        <div className="exchange">
             <h1>Exchange</h1>
             <p>The current exchangeRate is {loaderData.exchangeRate} ETHUSD</p>
             <Form

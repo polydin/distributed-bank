@@ -9,17 +9,24 @@ import { useTable } from 'react-table';
 import '../css/TransactionList.css';
 
 export async function loader() {
-    const web3 = new Web3(window.ethereum);
-    const address = localStorage.getItem('address');
+    const web3 = new Web3(window.ethereum)
+
+    // This is a hacky workaround to deal with availability of window.ethereum.selectedAddress on page load
+    const accounts = await window.ethereum.request({ 
+        method: 'eth_requestAccounts'
+    })
+    if (accounts.length === 0) { return redirect('/login')}
+
+    const address = window.ethereum.selectedAddress
     const response = await fetch(`http://localhost:5000/api/users/${address}/txs`).then(response => response.json())
-    let transactions = [];
+    let transactions = []
     for (let i=0; i<response.transactions.length; i++) {
         let tx = await web3.eth.getTransaction(response.transactions[i])
-        transactions[i] = tx;
+        transactions[i] = tx
     }
     for (const tx of transactions) {
-        const inter = new ethers.utils.Interface(artifact.abi);
-        let transformedTx = inter.parseTransaction({ data: tx.input, value: tx.value });
+        const inter = new ethers.utils.Interface(artifact.abi)
+        let transformedTx = inter.parseTransaction({ data: tx.input, value: tx.value })
         switch(transformedTx.functionFragment.name) {
             case 'exchange':
                 tx.name = 'Exchange';

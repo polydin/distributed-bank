@@ -12,7 +12,7 @@ export async function action({ request }) {
     const web3 = new Web3(window.ethereum)
     const formData = await request.formData()
     const deployedContract = new web3.eth.Contract(artifact.abi, import.meta.env.VITE_CONTRACT_ADDRESS)
-    const from = localStorage.getItem('address')
+    const from = window.ethereum.selectedAddress
     const to = formData.get('address')
     const value = parseInt(formData.get('amount'))
     let gasEstimate = await deployedContract.methods.transfer(from, to, value).estimateGas({
