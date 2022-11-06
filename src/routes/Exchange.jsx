@@ -61,6 +61,21 @@ export async function action({ request }) {
     return redirect('/');
 }
 
+async function proposeRate(event) {
+    event.preventDefault()
+    const from = window.ethereum.selectedAddress
+    const newRate = parseInt(event.target.newRate.value)
+    if (!isNaN(newRate)) {
+        let gasEstimate = await dbank.methods.proposeRateChange(newRate).estimateGas({
+            from: from
+        })
+        dbank.methods.proposeRateChange(newRate).send({
+            from: from,
+            gas: Math.floor(gasEstimate * 1.1)
+        })
+    }
+}
+
 async function rateVote(id) {
     let from = window.ethereum.selectedAddress;
     let gasEstimate = await dbank.methods.rateVote(id).estimateGas({
@@ -153,7 +168,7 @@ export default function Exchange() {
                 <input type="text" placeholder="amount" name="amount" />
                 <input type="submit" value="Exchange" />
             </Form>
-            <Form method="post" action="">
+            <Form onSubmit={proposeRate}>
                 <input type="text" placeholder="New Rate" name="newRate" />
                 <input type="submit" value="Propose New Rate" />
             </Form>
