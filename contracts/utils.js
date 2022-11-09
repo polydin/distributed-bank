@@ -2,6 +2,13 @@ var fs = require('fs');
 var Web3 = require('web3');
 var solc = require('solc');
 
+const CONTRACT_ADDRESS = '0x71a1fc258cc9587bd91ce915999ddb2b6a9a814d';
+
+async function getAccounts() {
+  const web3 = new Web3('http://127.0.0.1:8545');
+  return web3.eth.getAccounts();
+}
+
 function compileContract(contractFile, contractName) {
   let contractCode = fs.readFileSync(contractFile, 'UTF-8'); 
 
@@ -36,6 +43,13 @@ function writeArtifact(contractFile, contractName) {
   fs.writeFileSync('../src/DistributedBank.json', JSON.stringify(artifact));
 }
 
+function getContractObject() {
+  const web3 = new Web3('http://127.0.0.1:8545');
+  let artifact = compileContract('DistributedBank.sol', 'DistributedBank');
+  let deployedContract = new web3.eth.Contract(artifact.abi, CONTRACT_ADDRESS);
+  return deployedContract;
+}
+
 async function deployContract(contractFile, contractName) {
   const web3 = new Web3('http://127.0.0.1:8545');
   let accounts = await web3.eth.getAccounts();
@@ -47,4 +61,10 @@ async function deployContract(contractFile, contractName) {
   return deployedContract;
 }
 
-module.exports = { compileContract, deployContract, writeArtifact };
+module.exports = { 
+  getAccounts,
+  compileContract, 
+  deployContract, 
+  writeArtifact,
+  getContractObject,
+};
